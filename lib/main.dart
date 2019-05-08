@@ -1,61 +1,108 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_midi/flutter_midi.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
-  
+class MyApp extends StatefulWidget {
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  final String title;
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
+      theme: ThemeData.dark(),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text("Flutter Piano"),
+          centerTitle: true,
         ),
+        drawer: Drawer(
+          child: SafeArea(
+            child: ListView(
+              children: <Widget>[],
+            ),
+          ),
+        ),
+        body: ListView.builder(
+            itemCount: 7,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (BuildContext buildContext, int index) {
+              final int i = index * 12;
+              return SafeArea(
+                child: Stack(children: <Widget>[
+                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                    _buildKey(24 + i, false),
+                    _buildKey(26 + i, false),
+                    _buildKey(28 + i, false),
+                    _buildKey(29 + i, false),
+                    _buildKey(31 + i, false),
+                    _buildKey(33 + i, false),
+                    _buildKey(35 + i, false)
+                  ]),
+                  Positioned(
+                      left: 0.0,
+                      right: 0.0,
+                      bottom: 100,
+                      top: 0.0,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Container(width: keyWidth * .5),
+                            _buildKey(25 + i, true),
+                            _buildKey(27 + i, true),
+                            Container(width: keyWidth),
+                            _buildKey(30 + i, true),
+                            _buildKey(32 + i, true),
+                            _buildKey(34 + i, true),
+                            Container(width: keyWidth * .5)
+                          ])),
+                ]),
+              );
+            }),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), 
     );
   }
+
+  Widget _buildKey(int midi, bool accidental) {
+    if (accidental) {
+      return Container(
+        width: keyWidth,
+        color: Colors.black,
+        margin: EdgeInsets.symmetric(horizontal: 2.0),
+        padding: EdgeInsets.symmetric(horizontal: keyWidth * .1),
+        child: Material(
+          elevation: 6.0,
+          borderRadius: borderRadius,
+          shadowColor: Color(0x802196F3),
+        ),
+      );
+    }
+    return Container(
+      width: keyWidth,
+      color: Colors.white,
+      margin: EdgeInsets.symmetric(horizontal: 2.0),
+    );
+  }
+
+  @override
+  void initState() {
+    rootBundle.load("assets/sounds/Piano.sf2").then((sf2) {
+      FlutterMidi.prepare(sf2: sf2, name: "Piano.sf2").then((value) {
+        debugPrint(value);
+      });
+    });
+    super.initState();
+  }
+
+  double get keyWidth => 80 + (80 * _widthRatio);
+  double _widthRatio = 0.0;
+  bool _showLabels = true;
+
+  static const BorderRadiusGeometry borderRadius = BorderRadius.only(
+      bottomLeft: Radius.circular(10.0), bottomRight: Radius.circular(10.0));
 }
