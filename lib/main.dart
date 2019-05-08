@@ -16,6 +16,7 @@ class MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData.dark(),
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
           title: Text("Flutter Piano"),
@@ -24,12 +25,30 @@ class MyAppState extends State<MyApp> {
         drawer: Drawer(
           child: SafeArea(
             child: ListView(
-              children: <Widget>[],
+              children: <Widget>[
+                Container(height: 20.0),
+                ListTile(title: Text("Change Width")),
+                Slider(
+                    activeColor: Colors.redAccent,
+                    inactiveColor: Colors.white,
+                    value: _widthRatio,
+                    onChanged: (double value) =>
+                        setState(() => _widthRatio = value)),
+                Divider(),
+                ListTile(
+                  title: Text("Show Labels"),
+                  trailing: Switch(
+                    value: _showLabels,
+                    onChanged: (bool value) =>
+                        setState(() => _showLabels = value))),
+                Divider()
+              ],
             ),
           ),
         ),
         body: ListView.builder(
             itemCount: 7,
+            controller: ScrollController(initialScrollOffset: 1500),
             scrollDirection: Axis.horizontal,
             itemBuilder: (BuildContext buildContext, int index) {
               final int i = index * 12;
