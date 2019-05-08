@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_midi/flutter_midi.dart';
+import 'package:tonic/tonic.dart';
 
 void main() => runApp(MyApp());
 
@@ -68,23 +69,53 @@ class MyAppState extends State<MyApp> {
     );
   }
 
-  Widget _buildKey(int midi, bool accidental) {
+  Widget _buildKey(int midiNote, bool accidental) {
+    final pitchName = Pitch.fromMidiNumber(midiNote).toString();
+    final pianoKey = Stack(
+      children: <Widget>[
+        Semantics(
+            button: true,
+            hint: pitchName,
+            child: Material(
+                borderRadius: borderRadius,
+                color: accidental ? Colors.black : Colors.white,
+                child: InkWell(
+                  borderRadius: borderRadius,
+                  highlightColor: Colors.grey,
+                  onTap: () {},
+                  onTapDown: (_) => FlutterMidi.playMidiNote(midi: midiNote),
+                ))),
+        Positioned(
+          left: 0.0,
+          right: 0.0,
+          bottom: 20.0,
+          child: _showLabels
+              ? FlatButton(
+                  onPressed: () => FlutterMidi.playMidiNote(midi: midiNote),
+                  child: Text(pitchName,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: !accidental ? Colors.black : Colors.white)))
+              : Container(),
+        )
+      ],
+    );
     if (accidental) {
       return Container(
         width: keyWidth,
-        color: Colors.black,
         margin: EdgeInsets.symmetric(horizontal: 2.0),
         padding: EdgeInsets.symmetric(horizontal: keyWidth * .1),
         child: Material(
           elevation: 6.0,
           borderRadius: borderRadius,
           shadowColor: Color(0x802196F3),
+          child: pianoKey,
         ),
       );
     }
     return Container(
       width: keyWidth,
-      color: Colors.white,
+      child: pianoKey,
       margin: EdgeInsets.symmetric(horizontal: 2.0),
     );
   }
