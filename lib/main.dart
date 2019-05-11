@@ -36,12 +36,18 @@ class MyAppState extends State<MyApp> {
                         setState(() => _widthRatio = value)),
                 Divider(),
                 ListTile(
-                  title: Text("Show Labels"),
-                  trailing: Switch(
-                    value: _showLabels,
-                    onChanged: (bool value) =>
-                        setState(() => _showLabels = value))),
-                Divider()
+                    title: Text("Show Labels"),
+                    trailing: Switch(
+                        value: _showLabels,
+                        onChanged: (bool value) =>
+                            setState(() => _showLabels = value))),
+                Divider(),
+                ListTile(
+                    title: Text("Invert colors"),
+                    trailing: Switch(
+                        value: _invertColors,
+                        onChanged: (bool value) =>
+                            setState(() => _invertColors = value))),
               ],
             ),
           ),
@@ -97,7 +103,8 @@ class MyAppState extends State<MyApp> {
             hint: pitchName,
             child: Material(
                 borderRadius: borderRadius,
-                color: accidental ? Colors.black : Colors.white,
+                color:
+                    (accidental != _invertColors) ? Colors.black : Colors.white,
                 child: InkWell(
                   borderRadius: borderRadius,
                   highlightColor: Colors.grey,
@@ -114,7 +121,9 @@ class MyAppState extends State<MyApp> {
                   child: Text(pitchName,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          color: !accidental ? Colors.black : Colors.white)))
+                          color: !(_invertColors != accidental)
+                              ? Colors.black
+                              : Colors.white)))
               : Container(),
         )
       ],
@@ -152,6 +161,7 @@ class MyAppState extends State<MyApp> {
   double get keyWidth => 80 + (80 * _widthRatio);
   double _widthRatio = 0.0;
   bool _showLabels = true;
+  bool _invertColors = false;
 
   static const BorderRadiusGeometry borderRadius = BorderRadius.only(
       bottomLeft: Radius.circular(10.0), bottomRight: Radius.circular(10.0));
